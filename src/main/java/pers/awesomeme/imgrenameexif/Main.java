@@ -16,7 +16,7 @@ public class Main
 {
     public static void main(String[] args)
     {
-        Optional<Date> picDate = getPicDate("/Users/awesome/my/download/01.实体收藏位置.HEIC");
+        Optional<Date> picDate = getPicDate("/Users/awesome/my/download/0.46_207比448_1ot5ypo.png");
         if (picDate.isEmpty())
         {
             Console.log("输出数据【{}】", "获取失败");
@@ -27,7 +27,8 @@ public class Main
     }
 
     /**
-     * 读取图片/照片的拍摄时间
+     * 读取图片/照片的拍摄时间 <br/>
+     * 已测试过格式：HEIC、JPG
      * @param filePath 文件路径，必须是图片.
      * @return 时间
      */
@@ -51,6 +52,14 @@ public class Main
             return Optional.empty();
         }
         Date date = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME, TimeZone.getTimeZone("Asia/Shanghai"));
+        if (Objects.isNull(date))
+        {
+            date = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL, TimeZone.getTimeZone("Asia/Shanghai"));
+        }
+        if (Objects.isNull(date))
+        {
+            date = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_DIGITIZED, TimeZone.getTimeZone("Asia/Shanghai"));
+        }
         return Objects.nonNull(date) ? Optional.of(date) : Optional.empty();
     }
 }
