@@ -30,11 +30,12 @@ public class Main
         if (!FileUtil.isDirectory(dir))
         {
             Console.log("【{}】不是文件夹", dir);
+            return;
         }
-
-        // 读取文件
+        
+        // 读取文件夹中所有的 HEIC 与 JPG 文件
         List<File> fileList = FileUtil.loopFiles(dir, pathname -> isHeicOrJpg(pathname.getAbsolutePath()));
-
+        
         // 给文件进行重命名
         fileList.forEach(el -> rename(el.getAbsolutePath()));
     }
@@ -83,6 +84,7 @@ public class Main
     public static void rename(String filePath)
     {
         // 获取新文件名，不包括"."与扩展名.
+        Console.log("正在重命名中...");
         Optional<Date> picDate = getPicDate(filePath);
         if (picDate.isEmpty())
         {
