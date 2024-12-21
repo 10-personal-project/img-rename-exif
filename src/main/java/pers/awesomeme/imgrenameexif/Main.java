@@ -3,11 +3,15 @@ package pers.awesomeme.imgrenameexif;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.StrUtil;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import pers.awesomeme.commoncode.Constants;
 
+import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -16,14 +20,23 @@ public class Main
 {
     public static void main(String[] args)
     {
-        Optional<Date> picDate = getPicDate("/Users/awesome/my/download/0.46_207比448_1ot5ypo.png");
-        if (picDate.isEmpty())
+        // 检查文件夹
+        String dir = "/Users/awesome/my/download/姥爷";
+        if (StrUtil.contains(dir, "CloudStorage/Dropbox"))
         {
-            Console.log("输出数据【{}】", "获取失败");
+            Console.log("不能是Dropbox里的文件夹，复制一个操作.");
             return;
         }
+        if (!FileUtil.isDirectory(dir))
+        {
+            Console.log("【{}】不是文件夹", dir);
+        }
 
-        Console.log("输出数据【{}】", DateUtil.formatDateTime(picDate.get()));
+        // 读取文件
+        List<File> fileList = FileUtil.loopFiles(dir, pathname -> isHeicOrJpg(pathname.getAbsolutePath()));
+
+        // 给文件进行重命名
+        fileList.forEach(el -> rename(el.getAbsolutePath()));
     }
 
     /**
@@ -61,5 +74,53 @@ public class Main
             date = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_DIGITIZED, TimeZone.getTimeZone("Asia/Shanghai"));
         }
         return Objects.nonNull(date) ? Optional.of(date) : Optional.empty();
+    }
+
+    /**
+     * 重命名一个图片
+     * @param filePath 文件路径
+     */
+    public static void rename(String filePath)
+    {
+        // 获取新文件名，不包括"."与扩展名.
+        Optional<Date> picDate = getPicDate(filePath);
+        if (picDate.isEmpty())
+        {
+            Console.log("【{}】重命名失败，获取日期与时间失败.", filePath);
+            return;
+        }
+        String newName = DateUtil.format(picDate.get(), "yyyyMMdd_HHmm");
+
+        // 进行重命名
+        try
+        {
+            FileUtil.rename(FileUtil.file(filePath), newName, true, true);
+        }
+        catch (Exception e)
+        {
+            Console.log("【{}】重命名失败，要重命名的已存在.", filePath);
+        }
+    }
+
+    /**
+     * 根据文件名判断是不是HEIC或JPG
+     * @param filePath 文件路径
+     * @return true-是 false-不是
+     */
+    private static boolean isHeicOrJpg(String filePath)
+    {
+        if (!FileUtil.isFile(filePath))
+        {
+            return false;
+        }
+
+        int lastIndexOfDot = filePath.lastIndexOf(StrUtil.DOT);
+        if (lastIndexOfDot == -1)
+        {
+            return false;
+        }
+        String type = StrUtil.sub(filePath, lastIndexOfDot + 1, filePath.length());
+
+        return StrUtil.equalsAnyIgnoreCase(type, Constants.ImgType.HEIC, Constants.ImgType.JPG, Constants.ImgType.JPEG);
     }
 }
