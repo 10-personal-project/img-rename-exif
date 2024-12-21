@@ -21,7 +21,7 @@ public class Main
     public static void main(String[] args)
     {
         // 检查文件夹
-        String dir = "/Users/awesome/my/download/姥爷";
+        String dir = args[0];
         if (StrUtil.contains(dir, "CloudStorage/Dropbox"))
         {
             Console.log("不能是Dropbox里的文件夹，复制一个操作.");
@@ -96,11 +96,11 @@ public class Main
         // 进行重命名
         try
         {
-            FileUtil.rename(FileUtil.file(filePath), newName, true, true);
+            FileUtil.rename(FileUtil.file(filePath), newName, true, false);
         }
         catch (Exception e)
         {
-            Console.log("【{}】重命名失败，要重命名的已存在.", filePath);
+            Console.log("【{}】重命名失败，要重命名的已存在，需要手动重命名.", filePath);
         }
     }
 
