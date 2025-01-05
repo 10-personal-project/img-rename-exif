@@ -5,5 +5,6 @@
 # 使用教程
 java -jar xxx.jar "文件夹"
 
-# 其他
-不统一修改了，遇到一个修改一个.
+# feature
+这个图片重命名失败，注意下载原图测试.\
+https://www.dropbox.com/scl/fi/ti01bxjj74kczbca94op4/20220615_2322.PNG?rlkey=p7csdimost11t45ujkqmatryz&dl=0
